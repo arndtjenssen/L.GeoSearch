@@ -34,7 +34,6 @@
 
     function GeoSearch(options) {
       this._show = __bind(this._show, this);
-      this._showLocation = __bind(this._showLocation, this);
       var _this = this;
       L.Util.extend(this.options, options);
       this.options.onMakeSuggestionHTML = function(geosearchResult) {
@@ -359,10 +358,9 @@
       var enterKey, escapeKey;
       enterKey = 13;
       escapeKey = 27;
-      switch (e.keyCode) {
-        case enterKey:
-          L.DomEvent.preventDefault(e);
-          return this._startSearch();
+      if (e.keyCode === enterKey) {
+        L.DomEvent.preventDefault(e);
+        return this._startSearch();
       }
     };
 

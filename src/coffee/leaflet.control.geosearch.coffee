@@ -13,7 +13,7 @@ L.GeoSearch.Result = (x, y, label) ->
   @Y = y
   @Label = label
 
-class L.control.GeoSearch extends L.Control
+class L.Control.GeoSearch extends L.Control
   options:
     position: "topleft"
     provider: null
@@ -52,6 +52,7 @@ class L.control.GeoSearch extends L.Control
     input = L.DomUtil.create("input", null, form)
     input.placeholder = @options.searchLabel
     input.setAttribute "id", "inputGeosearch"
+    input.setAttribute "autocomplete", "off"
     @_searchInput = input
 
     #add events form the link(_btnSearch)
@@ -154,6 +155,7 @@ class L.control.GeoSearch extends L.Control
       @_printError @options.notFoundMessage
     else
       @_show results
+      @_map.fireEvent 'geosearch_foundlocations', {Location: location}
 
     return results
 
@@ -165,6 +167,7 @@ class L.control.GeoSearch extends L.Control
       else
         @_positionMarker.setLatLng [location.Y, location.X]
     @_map.setView [location.Y, location.X], @options.zoomLevel, false
+    @_map.fireEvent 'geosearch_showlocation', {Location: location}
     @_cancelSearch()
 
   _isShowingError: false

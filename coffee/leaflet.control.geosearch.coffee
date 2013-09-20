@@ -159,7 +159,7 @@ class L.Control.GeoSearch extends L.Control
 
     return results
 
-  _showLocation: (location) =>
+  _showLocation: (location) ->
     location = location[0]
     if @options.showMarker
       if typeof @_positionMarker is "undefined"
@@ -192,7 +192,6 @@ class L.Control.GeoSearch extends L.Control
     #hide de autocomplete structures
     @_hide()
 
-#suggestionBox
   _startSearch: ->
     # show spinner icon
     @_changeIcon "spinner"
@@ -203,7 +202,6 @@ class L.Control.GeoSearch extends L.Control
   _recordLastUserInput: (str) ->
     @_lastUserInput = str
 
-#suggestionBox
   _show: (results) =>
     @_changeIcon "glass"
 
@@ -321,10 +319,9 @@ class L.Control.GeoSearch extends L.Control
   _onKeyPress: (e) ->
     enterKey = 13
     escapeKey = 27
-    switch e.keyCode
-      when enterKey
-        L.DomEvent.preventDefault e
-        @_startSearch()
+    if e.keyCode is enterKey
+      L.DomEvent.preventDefault e
+      @_startSearch()
 
   _onKeyUp: (e) ->
     upArrow = 38

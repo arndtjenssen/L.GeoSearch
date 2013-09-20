@@ -159,7 +159,7 @@ class L.Control.GeoSearch extends L.Control
 
     return results
 
-  _showLocation: (location) ->
+  _showLocation: (location) =>
     location = location[0]
     if @options.showMarker
       if typeof @_positionMarker is "undefined"

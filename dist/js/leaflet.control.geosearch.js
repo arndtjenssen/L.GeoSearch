@@ -280,7 +280,7 @@
       var tip,
         _this = this;
       tip = L.DomUtil.create("li", "leaflet-geosearch-suggestion");
-      tip.innerHTML = '<i class="leaflet-control-geosearch marker"></i>' + this.options.onMakeSuggestionHTML(result);
+      tip.innerHTML = '<i class="leaflet-control-geosearch leaflet-geosearch-marker"></i>' + this.options.onMakeSuggestionHTML(result);
       tip._text = result.Label;
       L.DomEvent.disableClickPropagation(tip).on(tip, "click", function(e) {
         _this._onSelection(tip._text);

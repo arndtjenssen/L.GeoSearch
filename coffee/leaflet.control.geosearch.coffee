@@ -244,7 +244,7 @@ class L.Control.GeoSearch extends L.Control
 
   _newSuggestion: (result) ->
     tip = L.DomUtil.create("li", "leaflet-geosearch-suggestion")
-    tip.innerHTML = '<i class="leaflet-control-geosearch marker"></i>' + @options.onMakeSuggestionHTML(result)
+    tip.innerHTML = '<i class="leaflet-control-geosearch leaflet-geosearch-marker"></i>' + @options.onMakeSuggestionHTML(result)
     tip._text = result.Label
     L.DomEvent.disableClickPropagation(tip)
       .on tip, "click", (e) =>

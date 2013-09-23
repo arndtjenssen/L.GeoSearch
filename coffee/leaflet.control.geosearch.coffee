@@ -321,11 +321,9 @@ class L.Control.GeoSearch extends L.Control
 
   _onKeyPress: (e) ->
     enterKey = 13
-    escapeKey = 27
-    switch e.keyCode
-      when enterKey
-        L.DomEvent.preventDefault e
-        @_startSearch()
+    if e.keyCode is enterKey
+      L.DomEvent.preventDefault e
+      @_startSearch()
 
   _onKeyUp: (e) ->
     upArrow = 38

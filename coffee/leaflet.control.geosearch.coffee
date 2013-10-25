@@ -26,6 +26,7 @@ class L.Control.GeoSearch extends L.Control
     autocompleteQueryDelay_ms: 800
     maxResultCount: 10
     open: false
+    clearValue: true
 
   constructor: (options) ->
     L.Util.extend @options, options
@@ -46,8 +47,8 @@ class L.Control.GeoSearch extends L.Control
     @_changeIcon "glass"
 
     # create the form that will contain the input
-    if @options.open then formClass = "displayNone" else formClass = ""
-    form = L.DomUtil.create("form", "displayNone", @_container)
+    if !@options.open then formClass = "displayNone" else formClass = ""
+    form = L.DomUtil.create("form", formClass, @_container)
     form.setAttribute( "autocomplete", "off" );
 
     # create the input, and set its placeholder ("Enter address") text
@@ -62,10 +63,10 @@ class L.Control.GeoSearch extends L.Control
     L.DomEvent
       .on(clickElement, "click", L.DomEvent.stop)
       .on clickElement, "click", =>
-        if L.DomUtil.hasClass(form, "displayNone")
+        if L.DomUtil.hasClass(form, "displayNone") or @options.open
           L.DomUtil.removeClass form, "displayNone" # unhide form
-          $(input).select()
-          $(input).focus()
+          $(input).select() if @options.clearValue
+          $(input).focus() if !L.Browser.touch
           $(input).trigger "click"
         else
           if not @options.open then @_hide()
@@ -188,13 +189,14 @@ class L.Control.GeoSearch extends L.Control
   _cancelSearch: ->
     #clear the input value of the search
     input = @_container.querySelector("input")
-    input.value = "" # clear form
+    if @options.clearValue then input.value = "" # clear form
 
     # show glass icon
     @_changeIcon "glass"
     #hide de autocomplete structures
     @_hide()
 
+#suggestionBox
   _startSearch: ->
     # show spinner icon
     @_changeIcon "spinner"
@@ -205,6 +207,7 @@ class L.Control.GeoSearch extends L.Control
   _recordLastUserInput: (str) ->
     @_lastUserInput = str
 
+#suggestionBox
   _show: (results) =>
     @_changeIcon "glass"
 
@@ -244,7 +247,7 @@ class L.Control.GeoSearch extends L.Control
 
   _newSuggestion: (result) ->
     tip = L.DomUtil.create("li", "leaflet-geosearch-suggestion")
-    tip.innerHTML = '<i class="leaflet-control-geosearch leaflet-geosearch-marker"></i>' + @options.onMakeSuggestionHTML(result)
+    tip.innerHTML = '<i class="leaflet-control-geosearch marker"></i>' + @options.onMakeSuggestionHTML(result)
     tip._text = result.Label
     L.DomEvent.disableClickPropagation(tip)
       .on tip, "click", (e) =>
@@ -304,7 +307,7 @@ class L.Control.GeoSearch extends L.Control
       @_isShowingError = false
 
   _clearUserSearchInput: ->
-    @_searchInput.value = ""
+    if @options.clearValue then @_searchInput.value = ""
     @_hideAutocomplete()
 
   _onChange: ->
@@ -321,9 +324,12 @@ class L.Control.GeoSearch extends L.Control
 
   _onKeyPress: (e) ->
     enterKey = 13
-    if e.keyCode is enterKey
-      L.DomEvent.preventDefault e
-      @_startSearch()
+    escapeKey = 27
+    switch e.keyCode
+      when enterKey
+        L.DomEvent.preventDefault e
+        @_startSearch()
+        return false
 
   _onKeyUp: (e) ->
     upArrow = 38

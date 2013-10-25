@@ -30,7 +30,8 @@
       autocompleteMinQueryLen: 3,
       autocompleteQueryDelay_ms: 800,
       maxResultCount: 10,
-      open: false
+      visible: false,
+      clearValue: true
     };
 
     function GeoSearch(options) {
@@ -44,38 +45,38 @@
     }
 
     GeoSearch.prototype.onAdd = function(map) {
-      var clickElement, form, formClass, input,
+      var clickElement, form, formclass, input,
         _this = this;
       this._container = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-geosearch");
       this._btnSearch = L.DomUtil.create("a", "", this._container);
       this._btnSearch.href = "#";
       this._btnSearch.title = this.options.searchLabel;
       this._changeIcon("glass");
-      if (this.options.open) {
-        formClass = "displayNone";
-      } else {
-        formClass = "";
-      }
-      form = L.DomUtil.create("form", "displayNone", this._container);
+      formclass = !this.options.visible ? "displayNone" : "";
+      form = L.DomUtil.create("form", formclass, this._container);
       form.setAttribute("autocomplete", "off");
       input = L.DomUtil.create("input", null, form);
       input.placeholder = this.options.searchLabel;
       input.setAttribute("id", "inputGeosearch");
       input.setAttribute("autocomplete", "off");
       this._searchInput = input;
-      if (this.options.open) {
+      if (this.options.visible) {
         clickElement = this._container;
       } else {
         clickElement = this._btnSearch;
       }
       L.DomEvent.on(clickElement, "click", L.DomEvent.stop).on(clickElement, "click", function() {
-        if (L.DomUtil.hasClass(form, "displayNone")) {
+        if (L.DomUtil.hasClass(form, "displayNone") || _this.options.visible) {
           L.DomUtil.removeClass(form, "displayNone");
-          $(input).select();
-          $(input).focus();
+          if (_this.options.clearValue) {
+            $(input).select();
+          }
+          if (!L.Browser.touch) {
+            $(input).focus();
+          }
           return $(input).trigger("click");
         } else {
-          if (!_this.options.open) {
+          if (!_this.options.visible) {
             return _this._hide();
           }
         }
@@ -210,7 +211,9 @@
     GeoSearch.prototype._cancelSearch = function() {
       var input;
       input = this._container.querySelector("input");
-      input.value = "";
+      if (this.options.clearValue) {
+        input.value = "";
+      }
       this._changeIcon("glass");
       return this._hide();
     };
@@ -259,7 +262,7 @@
         this._hideAutocomplete;
       }
       form = this._container.querySelector("form");
-      if (!(L.DomUtil.hasClass(form, "displayNone") || this.options.open)) {
+      if (!(L.DomUtil.hasClass(form, "displayNone") || this.options.visible)) {
         L.DomUtil.addClass(form, "displayNone");
       }
       if (!L.DomUtil.hasClass(this._message, "displayNone")) {
@@ -348,7 +351,9 @@
     };
 
     GeoSearch.prototype._clearUserSearchInput = function() {
-      this._searchInput.value = "";
+      if (this.options.clearValue) {
+        this._searchInput.value = "";
+      }
       return this._hideAutocomplete();
     };
 
@@ -369,13 +374,11 @@
     };
 
     GeoSearch.prototype._onKeyPress = function(e) {
-      var enterKey, escapeKey;
+      var enterKey;
       enterKey = 13;
-      escapeKey = 27;
-      switch (e.keyCode) {
-        case enterKey:
-          L.DomEvent.preventDefault(e);
-          return this._startSearch();
+      if (e.keyCode === enterKey) {
+        L.DomEvent.preventDefault(e);
+        return this._startSearch();
       }
     };
 

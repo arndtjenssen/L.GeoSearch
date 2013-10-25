@@ -1,7 +1,5 @@
-#
 # * L.Control.GeoSearch - search for an address and zoom to its location
 # * https://github.com/smeijer/leaflet.control.geosearch
-#
 
 L.GeoSearch = {}
 L.GeoSearch.Provider = {}
@@ -25,7 +23,7 @@ class L.Control.GeoSearch extends L.Control
     autocompleteMinQueryLen: 3
     autocompleteQueryDelay_ms: 800
     maxResultCount: 10
-    open: false
+    visible: false
     clearValue: true
 
   constructor: (options) ->
@@ -47,9 +45,9 @@ class L.Control.GeoSearch extends L.Control
     @_changeIcon "glass"
 
     # create the form that will contain the input
-    if !@options.open then formClass = "displayNone" else formClass = ""
-    form = L.DomUtil.create("form", formClass, @_container)
-    form.setAttribute( "autocomplete", "off" );
+    formclass = unless @options.visible then "displayNone" else ""
+    form = L.DomUtil.create("form", formclass, @_container)
+    form.setAttribute( "autocomplete", "off" )
 
     # create the input, and set its placeholder ("Enter address") text
     input = L.DomUtil.create("input", null, form)
@@ -59,17 +57,17 @@ class L.Control.GeoSearch extends L.Control
     @_searchInput = input
 
     #add events form the link(_btnSearch)
-    if @options.open then clickElement = @_container else clickElement = @_btnSearch
+    if @options.visible then clickElement = @_container else clickElement = @_btnSearch
     L.DomEvent
       .on(clickElement, "click", L.DomEvent.stop)
       .on clickElement, "click", =>
-        if L.DomUtil.hasClass(form, "displayNone") or @options.open
+        if L.DomUtil.hasClass(form, "displayNone") or @options.visible
           L.DomUtil.removeClass form, "displayNone" # unhide form
           $(input).select() if @options.clearValue
-          $(input).focus() if !L.Browser.touch
+          $(input).focus() if not L.Browser.touch
           $(input).trigger "click"
         else
-          if not @options.open then @_hide()
+          if not @options.visible then @_hide()
 
     #create events for the input
     L.DomEvent
@@ -189,14 +187,14 @@ class L.Control.GeoSearch extends L.Control
   _cancelSearch: ->
     #clear the input value of the search
     input = @_container.querySelector("input")
-    if @options.clearValue then input.value = "" # clear form
+    input.value = "" if @options.clearValue
 
     # show glass icon
     @_changeIcon "glass"
     #hide de autocomplete structures
     @_hide()
 
-#suggestionBox
+  #suggestionBox
   _startSearch: ->
     # show spinner icon
     @_changeIcon "spinner"
@@ -207,7 +205,7 @@ class L.Control.GeoSearch extends L.Control
   _recordLastUserInput: (str) ->
     @_lastUserInput = str
 
-#suggestionBox
+  #suggestionBox
   _show: (results) =>
     @_changeIcon "glass"
 
@@ -231,10 +229,9 @@ class L.Control.GeoSearch extends L.Control
     clearTimeout(@_autocompleteRequestTimer)
 
   _hide: ->
-    if @options.enableAutocomplete
-      @_hideAutocomplete
+    @_hideAutocomplete if @options.enableAutocomplete
     form = @_container.querySelector("form")
-    L.DomUtil.addClass form, "displayNone" unless L.DomUtil.hasClass(form, "displayNone") or @options.open # hide form
+    L.DomUtil.addClass form, "displayNone" unless L.DomUtil.hasClass(form, "displayNone") or @options.visible # hide form
     L.DomUtil.addClass @_message, "displayNone" unless L.DomUtil.hasClass(@_message, "displayNone") # hide form
     @_suggestionBox.innerHTML = ""
 
@@ -247,7 +244,7 @@ class L.Control.GeoSearch extends L.Control
 
   _newSuggestion: (result) ->
     tip = L.DomUtil.create("li", "leaflet-geosearch-suggestion")
-    tip.innerHTML = '<i class="leaflet-control-geosearch marker"></i>' + @options.onMakeSuggestionHTML(result)
+    tip.innerHTML = '<i class="leaflet-control-geosearch leaflet-geosearch-marker"></i>' + @options.onMakeSuggestionHTML(result)
     tip._text = result.Label
     L.DomEvent.disableClickPropagation(tip)
       .on tip, "click", (e) =>
@@ -324,12 +321,9 @@ class L.Control.GeoSearch extends L.Control
 
   _onKeyPress: (e) ->
     enterKey = 13
-    escapeKey = 27
-    switch e.keyCode
-      when enterKey
-        L.DomEvent.preventDefault e
-        @_startSearch()
-        return false
+    if e.keyCode is enterKey
+      L.DomEvent.preventDefault e
+      @_startSearch()
 
   _onKeyUp: (e) ->
     upArrow = 38
